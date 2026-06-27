@@ -1,0 +1,45 @@
+name: Daily Problem Solver 🛠️
+
+on:
+  schedule:
+    # 9:00 PM IST = 15:30 UTC daily
+    - cron: '30 15 * * *'
+  workflow_dispatch:
+    # Also allows manual trigger from GitHub Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  build-daily-product:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install google-generativeai requests
+
+      - name: Run Daily Product Builder
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/daily_runner.py
+
+      - name: Commit & Push New Product
+        run: |
+          git config --global user.name "Daily Problem Solver Bot"
+          git config --global user.email "daily-bot@github-actions.com"
+          git add .
+          # Only commit if there are actual changes
+          git diff --staged --quiet || git commit -m "🛠️ Daily Product: $(date +'%Y-%m-%d') [automated]"
+          git push origin main
