@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BragForge - Developer Brag Sheet & Resume Bullet Generator</title>
+    <meta name="description" content="Forge raw git logs and developer achievements into metrics-driven, STAR-method brag sheets, self-assessments, and resume bullets.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-bg-glow"></div>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="logo-area">
+                <span class="logo-icon">🛠️</span>
+                <h1 class="logo-text">Brag<span>Forge</span></h1>
+            </div>
+            <p class="subtitle">Transform raw git logs and daily work into impactful, metric-driven achievements.</p>
+        </header>
+
+        <!-- Main Workspace Grid -->
+        <main class="workspace-grid">
+            
+            <!-- Left Panel: Input, Parse, & Formulate -->
+            <section class="control-panel panel-card" aria-label="Input and Editor Panel">
+                <div class="tabs-header">
+                    <button id="btn-tab-parse" class="tab-btn active" onclick="switchTab('parse')">Parse Git Logs</button>
+                    <button id="btn-tab-manual" class="tab-btn" onclick="switchTab('manual')">Manual Entry</button>
+                </div>
+
+                <!-- Tab Content: Git Log Parser -->
+                <div id="tab-parse-content" class="tab-content active">
+                    <div class="input-group">
+                        <label for="git-log-input">Paste Git Log or Commit List</label>
+                        <span class="input-help">Format example: <code>feat(auth): integrate OAuth2 login flow</code> or raw commit list.</span>
+                        <textarea id="git-log-input" placeholder="e.g.&#10;feat(api): optimize database indexes, reducing fetch latency by 35%&#10;fix(auth): solve security vulnerability in session token expiration&#10;refactor: clean up legacy charting components"></textarea>
+                    </div>
+                    <button id="btn-parse-logs" class="btn btn-primary" onclick="handleParseLogs()">Parse Commit Logs</button>
+                </div>
+
+                <!-- Tab Content: Manual Entry -->
+                <div id="tab-manual-content" class="tab-content">
+                    <form id="manual-entry-form" onsubmit="handleManualSubmit(event)">
+                        <div class="input-group">
+                            <label for="manual-title">Accomplishment / Task Title</label>
+                            <input type="text" id="manual-title" required placeholder="e.g., Developed the new analytics dashboard">
+                        </div>
+                        <div class="grid-2-col">
+                            <div class="input-group">
+                                <label for="manual-category">Category</label>
+                                <select id="manual-category">
+                                    <option value="feat">Feature (feat)</option>
+                                    <option value="fix">Bug Fix (fix)</option>
+                                    <option value="perf">Performance (perf)</option>
+                                    <option value="refactor">Refactor (refactor)</option>
+                                    <option value="docs">Docs/Testing (docs)</option>
+                                    <option value="other">Other/Operations</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="manual-metric">Quantifiable Metric (Optional)</label>
+                                <input type="text" id="manual-metric" placeholder="e.g., 40% speedup, 12 hrs saved">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Achievement</button>
+                    </form>
+                </div>
+
+                <hr class="panel-divider">
+
+                <!-- Active Achievements Section -->
+                <div class="achievements-section">
+                    <div class="section-title-bar">
+                        <h2>Active Achievements (<span id="achievement-count">0</span>)</h2>
+                        <button id="btn-clear-all" class="btn btn-danger btn-xs" onclick="clearAllAchievements()">Clear All</button>
+                    </div>
+                    
+                    <div id="achievements-list" class="achievements-list">
+                        <!-- Dynamically filled with achievements -->
+                        <div class="empty-list-state">
+                            <span class="empty-icon">📭</span>
+                            <p>No achievements added yet. Paste git logs or add one manually above.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STAR Formulator Area (shows when an achievement is selected) -->
+                <div id="star-editor-container" class="star-editor-container hidden">
+                    <hr class="panel-divider">
+                    <div class="section-title-bar">
+                        <h2>Flesh out with the STAR Method</h2>
+                        <span class="badge badge-star">Active Editor</span>
+                    </div>
+                    <p class="section-desc">Selected: <strong id="star-selected-title">Task Name</strong></p>
+                    
+                    <div class="star-inputs">
+                        <div class="input-group">
+                            <label for="star-situation"><strong>S</strong>ituation (The context or challenge faced)</label>
+                            <textarea id="star-situation" placeholder="What was the problem? e.g. Customer checkout dropoffs had increased by 15% due to payment form friction."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="star-task"><strong>T</strong>ask (Your specific responsibility)</label>
+                            <textarea id="star-task" placeholder="What needed to be done? e.g. Identify user friction points and redesign the multi-page checkout flow."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="star-action"><strong>A</strong>ction (What you did & skills used)</label>
+                            <textarea id="star-action" placeholder="What actions did you take? e.g. Replaced legacy jQuery form validation with React-Hook-Form, optimized asset loading, and integrated Stripe Elements."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="star-result"><strong>R</strong>esult (The positive outcome & metrics)</label>
+                            <textarea id="star-result" placeholder="What was the business outcome? e.g. Reduced checkout duration by 40% and increased completion rates by 12% in the first month."></textarea>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="saveStarDetails()">Save STAR Bullet</button>
+                </div>
+            </section>
+
+            <!-- Right Panel: Live Preview & Export -->
+            <section class="preview-panel panel-card" aria-label="Output Preview and Export Panel">
+                <div class="panel-header-row">
+                    <h2>Live Preview</h2>
+                    <div class="template-selector">
+                        <label for="select-template">Format Style:</label>
+                        <select id="select-template" onchange="renderPreview()">
+                            <option value="brag">Professional Brag Sheet (Categorized)</option>
+                            <option value="star">STAR Performance bullets</option>
+                            <option value="minimal">Minimal Bullet List</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Preview Box -->
+                <div class="preview-viewport-container">
+                    <div id="preview-output" class="preview-output">
+                        <!-- Rendered Markdown/HTML goes here -->
+                    </div>
+                </div>
+
+                <!-- Export Controls -->
+                <div class="export-actions">
+                    <button id="btn-copy" class="btn btn-success" onclick="copyToClipboard()">
+                        <span id="btn-copy-text">📋 Copy Markdown</span>
+                    </button>
+                    <button id="btn-download-json" class="btn btn-info" onclick="downloadJSON()">
+                        💾 Save State (JSON)
+                    </button>
+                    <button id="btn-download-html" class="btn btn-info" onclick="downloadHTML()">
+                        🌐 Export Landing Page
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">Copied to clipboard!</div>
+
+    <!-- Main JavaScript App -->
+    <script src="app.js"></script>
+</body>
+</html>
